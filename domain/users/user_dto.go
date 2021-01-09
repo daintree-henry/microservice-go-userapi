@@ -35,4 +35,6 @@ func (user *User) Validate() errors.UtilErr {
 	user.Name = strings.TrimSpace(user.Name)
 	user.Email = strings.TrimSpace(user.Email)
 	user.PhoneNumber = strings.TrimSpace(user.PhoneNumber)
+
+	return nil
 }
