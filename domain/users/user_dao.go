@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/daintree-henry/microservice-go-userapi/database/mysql/userdb"
+	"github.com/daintree-henry/microservice-go-userapi/domain/users"
 	"github.com/daintree-henry/microservice-go-userapi/utils/errors"
 	"github.com/daintree-henry/microservice-go-userapi/utils/logger"
 )
@@ -44,8 +45,8 @@ func (user *User) CreateUser() errors.UtilErr {
 	return nil
 }
 
-func (user *User) GetUserById() errors.UtilErr {
-	stmt, err := userdb.Client.Prepare(queryGetUserById)
+func (user *User) GetUserByPK() errors.UtilErr {
+	stmt, err := userdb.Client.Prepare(queryGetUserByPK)
 	if err != nil {
 		logger.Error("fail to prepare userdb statement", err)
 		return errors.NewRestError("fail to prepare userdb statement", http.StatusInternalServerError, err.Error())
@@ -70,13 +71,13 @@ func (user *User) PrimaryKeyById() errors.UtilErr {
 	}
 	defer stmt.Close()
 
-	err := stmt.QueryRow(user.PrimaryKey).Scan(&user.Id)
+	err := stmt.QueryRow(user.Id).Scan(&user.PrimaryKey)
 	if err != nil {
 		logger.Error("fail to retrieve user", err)
 		return errors.NewRestError("fail to retrieve user", http.StatusInternalServerError, err.Error())
 	}
 
-	logger.Info("getting user Id successfully")
+	logger.Info("getting user PK successfully")
 	return nil
 }
 
@@ -130,7 +131,7 @@ func (user *User) FindIdByPhoneNumber() errors.UtilErr {
 	return nil
 }
 
-func (user *User) queryValidUserCheck() errors.UtilErr {
+func (user *User) ValidUserCheck() errors.UtilErr {
 	stmt, err := userdb.Client.Prepare(queryValidUserCheck)
 	if err != nil {
 		logger.Error("fail to prepare userdb statement", err)
@@ -138,8 +139,10 @@ func (user *User) queryValidUserCheck() errors.UtilErr {
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(user.PhoneNumber, user.Password)
-	if err := result.Scan(); err != nil {
+	"SELECT id,name,email,phone_number,status,created_at,modified_at FROM users WHERE id=? AND password=? AND status=?"
+
+	result := stmt.QueryRow(user.PhoneNumber, user.Password, users.StatusActive)
+	if err := result.Scan(&user.Id, &user.Name, &user.Email, &user.PhoneNumber, &user.Status, &user.CreatedAt, &user.ModifiedAt); err != nil {
 		logger.Error("fail to execute queryValidUserCheck", err)
 		return errors.NewRestError("fail to execute queryValidUserCheck", http.StatusUnauthorized, err.Error())
 	}
