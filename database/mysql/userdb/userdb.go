@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/daintree-henry/microservice-go-userapi/utils/logger"
+	"github.com/daintree-henry/microservice-go-userapi/utils/utils_logger"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -43,5 +43,5 @@ func init() {
 	if err = Client.Ping(); err != nil {
 		panic(err)
 	}
-	logger.Info("Database Connected")
+	utils_logger.Info("Database Connected")
 }

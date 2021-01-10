@@ -3,7 +3,7 @@ package users
 import (
 	"strings"
 
-	"github.com/daintree-henry/microservice-go-userapi/utils/errors"
+	"github.com/daintree-henry/microservice-go-userapi/utils/utils_errors"
 )
 
 const (
@@ -28,7 +28,7 @@ type User struct {
 type Users []User
 
 //데이터 유효성 검사
-func (user *User) Validate() errors.UtilErr {
+func (user *User) Validate() utils_errors.UtilErr {
 	//marshal된 json 데이터의 공백 제거
 	user.Id = strings.TrimSpace(user.Id)
 	user.Password = strings.TrimSpace(user.Password)

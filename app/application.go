@@ -3,7 +3,7 @@ package app
 import (
 	"os"
 
-	"github.com/daintree-henry/microservice-go-userapi/utils/logger"
+	"github.com/daintree-henry/microservice-go-userapi/utils/utils_logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +17,7 @@ var (
 func StartApplication() {
 	mapUrls()
 
-	logger.Info("starting application")
+	utils_logger.Info("starting application")
 	//router.Run(fmt.Sprintf(":", port))
 	//TODO: 배포 전 포트 수정 필요
 	router.Run(":8080")
