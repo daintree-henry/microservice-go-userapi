@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/daintree-henry/microservice-go-userapi/database/mysql/userdb"
-	"github.com/daintree-henry/microservice-go-userapi/domain/users"
 	"github.com/daintree-henry/microservice-go-userapi/utils/utils_errors"
 	"github.com/daintree-henry/microservice-go-userapi/utils/utils_logger"
 )
@@ -53,7 +52,7 @@ func (user *User) DaoGetUserByPK() utils_errors.UtilErr {
 	}
 	defer stmt.Close()
 
-	err := stmt.QueryRow(user.PrimaryKey).Scan(&user.Id, &user.Name, &user.Email, &user.PhoneNumber, &user.Status, &user.CreatedAt, &user.ModifiedAt)
+	err = stmt.QueryRow(user.PrimaryKey).Scan(&user.Id, &user.Name, &user.Email, &user.PhoneNumber, &user.Status, &user.CreatedAt, &user.ModifiedAt)
 	if err != nil {
 		utils_logger.Error("fail to execute queryGetUserById", err)
 		return utils_errors.NewRestError("fail to execute queryGetUserById", http.StatusInternalServerError, err.Error())
@@ -71,7 +70,7 @@ func (user *User) DaoPrimaryKeyById() utils_errors.UtilErr {
 	}
 	defer stmt.Close()
 
-	err := stmt.QueryRow(user.PrimaryKey).Scan(&user.Id)
+	err = stmt.QueryRow(user.PrimaryKey).Scan(&user.Id)
 	if err != nil {
 		utils_logger.Error("fail to retrieve user", err)
 		return utils_errors.NewRestError("fail to retrieve user", http.StatusInternalServerError, err.Error())
@@ -139,9 +138,7 @@ func (user *User) DaoValidUserCheck() utils_errors.UtilErr {
 	}
 	defer stmt.Close()
 
-	"SELECT id,name,email,phone_number,status,created_at,modified_at FROM users WHERE id=? AND password=? AND status=?"
-
-	result := stmt.QueryRow(user.PhoneNumber, user.Password, users.StatusActive)
+	result := stmt.QueryRow(user.PhoneNumber, user.Password, StatusActive)
 	if err := result.Scan(&user.Id, &user.Name, &user.Email, &user.PhoneNumber, &user.Status, &user.CreatedAt, &user.ModifiedAt); err != nil {
 		utils_logger.Error("fail to execute queryValidUserCheck", err)
 		return utils_errors.NewRestError("fail to execute queryValidUserCheck", http.StatusUnauthorized, err.Error())
@@ -154,29 +151,29 @@ func (user *User) DaoGetUsersByStatus(status string) ([]User, utils_errors.UtilE
 	stmt, err := userdb.Client.Prepare(queryGetUsersByStatus)
 	if err != nil {
 		utils_logger.Error("fail to prepare userdb statement", err)
-		return utils_errors.NewRestError("fail to prepare userdb statement", http.StatusInternalServerError, err.Error())
+		return nil, utils_errors.NewRestError("fail to prepare userdb statement", http.StatusInternalServerError, err.Error())
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(status)
 	if err != nil {
 		utils_logger.Error("fail to execute queryGetUsersByStatus", err)
-		return utils_errors.NewRestError("fail to execute queryGetUsersByStatus", http.StatusInternalServerError, err.Error())
+		return nil, utils_errors.NewRestError("fail to execute queryGetUsersByStatus", http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
 
-	results = make([]User, 0)
+	results := make([]User, 0)
 	for rows.Next() {
 		var user User
 		if err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.PhoneNumber, &user.Status, &user.CreatedAt, &user.ModifiedAt); err != nil {
 			utils_logger.Error("fail to scanning user rows", err)
-			return utils_errors.NewRestError("fail to scanning user rows", http.StatusInternalServerError, err.Error())
+			return nil, utils_errors.NewRestError("fail to scanning user rows", http.StatusInternalServerError, err.Error())
 		}
-		results.append(results, user)
+		results = append(results, user)
 	}
-	if len(results) == nil {
+	if len(results) == 0 {
 		utils_logger.Error(fmt.Sprintf("there is no ", status, " user"), nil)
-		return utils_errors.NewRestError(fmt.Sprintf("there is no ", status, " user"), http.StatusInternalServerError, err.Error())
+		return nil, utils_errors.NewRestError(fmt.Sprintf("there is no ", status, " user"), http.StatusInternalServerError, err.Error())
 	}
 	return results, nil
 }
