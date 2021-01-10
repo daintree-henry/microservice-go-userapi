@@ -1,4 +1,4 @@
-package errors
+package utils_errors
 
 //인터페이스를 구현한 구조체를 변경해 유연하게 대응 가능
 type UtilErr interface {
