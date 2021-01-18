@@ -34,11 +34,7 @@ func (s *usersService) SvcCreateUser(user users.User) (*users.User, utils_errors
 	nowTime := utils_date.GetNowDateString()
 	user.CreatedAt = nowTime
 	user.ModifiedAt = nowTime
-	cryptoPassword, err := utils_crypto.HashPassword(user.Password)
-	if err != nil {
-		return nil, utils_errors.NewRestError("Error in hashing password", http.StatusInternalServerError, err.Error())
-	}
-	user.Password = cryptoPassword
+	user.Password = utils_crypto.CryptoSha256(user.Password)
 
 	if err := user.DaoCreateUser(); err != nil {
 		return nil, err
