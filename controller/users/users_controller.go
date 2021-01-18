@@ -81,6 +81,24 @@ func CtrLoginUserByIdAndPw(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+func CtrFindIdByPhoneNumber(c *gin.Context) {
+	var user users.User
+
+	if err := c.ShouldBindJSON(&user); err != nil {
+		utils_logger.Error("json parsing error", err)
+		c.JSON(http.StatusBadRequest, utils_errors.NewRestError("json parsing error", http.StatusBadRequest, err.Error()))
+		return
+	}
+
+	result, err := services.UsersService.SvcFindIdByPhoneNumber(user)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
 func CtrGetUsersByStatus(c *gin.Context) {
 	result, err := services.UsersService.SvcGetUsersByStatus(c.Param("status"))
 
