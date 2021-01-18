@@ -40,7 +40,7 @@ func (user *User) DaoCreateUser() utils_errors.UtilErr {
 		return utils_errors.NewRestError("fail to execute queryCreateUser", http.StatusInternalServerError, err.Error())
 	}
 	user.PrimaryKey = userKey
-	utils_logger.Info(fmt.Sprintf("user made successfully : ", userKey))
+	utils_logger.Info(fmt.Sprintf("user made successfully : %v", userKey))
 	return nil
 }
 
@@ -147,7 +147,7 @@ func (user *User) DaoValidUserCheck() utils_errors.UtilErr {
 	return nil
 }
 
-func (user *User) DaoGetUsersByStatus(status string) ([]User, utils_errors.UtilErr) {
+func (user *User) DaoGetUsersByStatus(status string) (*[]User, utils_errors.UtilErr) {
 	stmt, err := userdb.Client.Prepare(queryGetUsersByStatus)
 	if err != nil {
 		utils_logger.Error("fail to prepare userdb statement", err)
@@ -175,5 +175,5 @@ func (user *User) DaoGetUsersByStatus(status string) ([]User, utils_errors.UtilE
 		utils_logger.Error(fmt.Sprintf("there is no ", status, " user"), nil)
 		return nil, utils_errors.NewRestError(fmt.Sprintf("there is no ", status, " user"), http.StatusInternalServerError, err.Error())
 	}
-	return results, nil
+	return &results, nil
 }
